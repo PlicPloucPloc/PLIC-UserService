@@ -3,6 +3,8 @@ import { swagger } from "@elysiajs/swagger";
 import userRoutes from "./routes";
 
 const app = new Elysia();
+const { PORT } = process.env;
+console.log("Port:", PORT);
 
 app
     .group("", (app) => app.use(userRoutes))
