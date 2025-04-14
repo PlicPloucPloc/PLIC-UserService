@@ -1,4 +1,3 @@
-
 class LoginResponse {
     accessToken: string;
     refreshToken: string;
@@ -11,4 +10,4 @@ class LoginResponse {
     }
 }
 
-export {LoginResponse};
+export default LoginResponse;

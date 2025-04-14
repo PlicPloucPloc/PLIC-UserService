@@ -1,5 +1,5 @@
 import { supabase } from "../libs/supabase";
-import { LoginResponse } from "../routes/responses/login";
+import LoginResponse from "../routes/responses/login";
 
 async function createUser(email: string, password: string){
     const { data,error } = await supabase.auth.signUp({
