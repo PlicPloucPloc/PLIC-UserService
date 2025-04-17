@@ -5,7 +5,15 @@ const userRoutes = new Elysia({prefix: "/user"});
 
 userRoutes.get("/", () => "Get all users");
 
-userRoutes.post("/register", ({ body }) => register(body), {
+userRoutes.post("/register", async ({ body }) => {
+        var resp = await register(body);
+        if (resp instanceof Error) {
+            return new Response( resp.message, {status: 400, headers: { "Content-Type": "text/plain" } });
+        }
+        else {
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        }
+    }, {
         body : t.Object({
             firstName: t.String(),
             lastName: t.String(),
