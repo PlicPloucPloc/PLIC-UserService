@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 import { register, login, resendVerification } from "../services/authentication_service";
+import { HttpError } from "elysia-http-error";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
@@ -7,8 +8,8 @@ userRoutes.get("/", () => "Get all users");
 
 userRoutes.post("/register", async ({ body }) => {
         var resp = await register(body);
-        if (resp instanceof Error) {
-            return new Response( resp.message, {status: 400, headers: { "Content-Type": "text/plain" } });
+        if (resp instanceof HttpError) {
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
         }
         else {
             return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
@@ -23,8 +24,16 @@ userRoutes.post("/register", async ({ body }) => {
         })
     });
 
-userRoutes.post("/resend", async ({ body }) =>
-        await resendVerification(body.email), 
+userRoutes.post("/resend", async ({ body }) => {
+
+        var resp = await resendVerification(body.email); 
+        if (resp instanceof HttpError) {
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        }
+        else {
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        }
+        },
         {
             body : t.Object({
                 email: t.String()
