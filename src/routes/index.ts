@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { register, login } from "../services/authentication_service";
+import { register, login, resendVerification } from "../services/authentication_service";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
@@ -22,6 +22,16 @@ userRoutes.post("/register", async ({ body }) => {
             age: t.Number(),
         })
     });
+
+userRoutes.post("/resend", async ({ body }) =>
+        await resendVerification(body.email), 
+        {
+            body : t.Object({
+                email: t.String()
+            })
+        }
+);
+
 
 userRoutes.post("/login", async ({ body }) => {
         var resp = await login(body.email,body.password);

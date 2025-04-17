@@ -33,4 +33,15 @@ async function createUser(user: User){
         throw error;
     }
 }
-export { authenticateUser, loginUser,createUser };
+
+async function resendEmail(email: string){
+    const {data,error } = await supabase.auth.resend({
+        email: email,
+        type: "signup"
+    });
+    if (error) {
+        console.error("Error resending verification email:", error);
+        throw error;
+    }
+}
+export { authenticateUser, loginUser,createUser,resendEmail };

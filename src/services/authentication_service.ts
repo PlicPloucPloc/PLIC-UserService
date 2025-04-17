@@ -1,4 +1,4 @@
-import {authenticateUser,createUser,loginUser} from "../data/user";
+import {authenticateUser,createUser,loginUser,resendEmail} from "../data/user";
 import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
@@ -25,6 +25,11 @@ async function login(email: string, password: string) : Promise<LoginResponse>{
     return response;
 }
 
+async function resendVerification(email: string){
+    console.log("Resending verification email to: ", email);
+    await resendEmail(email);
+}
+
 function passwordCheck(password: string){
     if (password.length < 8) {
         throw HttpError.BadRequest("Password must be at least 8 characters long.", {status: 400});
@@ -39,4 +44,4 @@ function passwordCheck(password: string){
     }
 }
 
-export { register, login };
+export { register, login,resendVerification };
