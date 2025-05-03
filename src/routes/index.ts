@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { createUser, loginUser } from "../services/authentication_service";
+import { createUser, loginUser, resetPassword } from "../services/authentication_service";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
@@ -29,5 +29,15 @@ userRoutes.post("/login", async ({ body }) => {
             console.log("Registering user:",body);
         }
     });
+
+userRoutes.post("/forgotPassword/:email", async ({ params }) => {
+    console.log(params);
+    return await resetPassword(params.email);
+    },
+    {
+        params: t.Object({
+            email: t.String()
+    })
+    })
 
 export default userRoutes;

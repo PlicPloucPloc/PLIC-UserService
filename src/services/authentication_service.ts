@@ -28,4 +28,13 @@ async function loginUser(email: string, password: string) : Promise<LoginRespons
     return response;
 }
 
-export { createUser,loginUser };
+async function resetPassword(email: string){
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+        console.error("Error sending password reset email:", error);
+        throw error;
+    }
+    return data;    
+}
+
+export { createUser,loginUser,resetPassword };
