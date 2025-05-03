@@ -26,8 +26,13 @@ async function login(email: string, password: string) : Promise<LoginResponse>{
 }
 
 async function resendVerification(email: string){
-    console.log("Resending verification email to: ", email);
-    await resendEmail(email);
+    try {
+        console.log("Resending verification email to: ", email);
+        await resendEmail(email);
+    } catch (error) {
+        console.error("Error resending verification email:", error);
+        return error;
+    }
 }
 
 function passwordCheck(password: string){

@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { register, login, resendVerification } from "../services/authentication_service";
+import { register, login, resendVerification } from "../services/authenticationService";
 import { HttpError } from "elysia-http-error";
 
 const userRoutes = new Elysia({prefix: "/user"});
@@ -16,11 +16,22 @@ userRoutes.post("/register", async ({ body }) => {
         }
     }, {
         body : t.Object({
-            firstName: t.String(),
-            lastName: t.String(),
-            email: t.String(),
+            firstName: t.String({
+                minLength: 1,
+                maxLength: 100
+            }),
+            lastName: t.String({
+                minLength: 1,
+                maxLength: 100
+            }),
+            email: t.String({
+                "format": "email"
+            }),
             password: t.String(),
-            age: t.Number(),
+            age: t.Number({
+                minimum: 10,
+                maximum: 120
+            }),
         })
     });
 
@@ -36,7 +47,9 @@ userRoutes.post("/resend", async ({ body }) => {
         },
         {
             body : t.Object({
-                email: t.String()
+                email: t.String({
+                    format: "email"
+                })
             })
         }
 );
@@ -47,7 +60,9 @@ userRoutes.post("/login", async ({ body }) => {
         return new Response( JSON.stringify(resp), {status: 200, headers: { "Content-Type": "application/json" } });
     }, {
         body : t.Object({
-            email: t.String(),
+            email: t.String({
+                format: "email"
+            }),
             password: t.String()
         })
     });
