@@ -54,7 +54,6 @@ userRoutes.post("/resend", async ({ body }) => {
         }
 );
 
-
 userRoutes.post("/login", async ({ body }) => {
         var resp = await login(body.email,body.password);
         return new Response( JSON.stringify(resp), {status: 200, headers: { "Content-Type": "application/json" } });
@@ -67,9 +66,15 @@ userRoutes.post("/login", async ({ body }) => {
         })
     });
 
-userRoutes.post("/forgotPassword/:email", async ({ params }) => {
-    console.log(params);
-    return await resetPassword(params.email);
+userRoutes.get("/forgotPassword/:email", async ({ params }) => {
+        console.log(params);
+        const resp = await resetPassword(params.email);
+        if (resp instanceof HttpError) {
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        }
+        else {
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        }
     },
     {
         params: t.Object({
