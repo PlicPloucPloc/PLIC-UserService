@@ -51,7 +51,24 @@ async function sendResetPassword(email: string){
         console.error("Error sending password reset email:", error);
         throw error;
     }
-    return data;    
 }
 
-export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword };
+async function getUserById(id: string) {
+    const { data, error } = await supabase.from("users").select("*").eq("id", id);
+    if (error) {
+        console.error("Error getting user:", error);
+        throw error;
+    }
+    return data[0]
+}
+
+async function getAllUsers() {
+    const { data, error } = await supabase.from("users").select("*");
+    if (error) {
+        console.error("Error getting all users:", error);
+        throw error;
+    }
+    return data;
+}
+
+export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, getUserById, getAllUsers };

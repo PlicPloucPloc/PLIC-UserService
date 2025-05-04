@@ -21,7 +21,7 @@ async function register(request: RegisterRequest){
 async function login(email: string, password: string) : Promise<LoginResponse>{
     console.log("Login in user:", email);
     var session = await loginUser(email,password);
-    var response = new LoginResponse(session.access_token, session.refresh_token, session.expires_at);
+    var response = new LoginResponse(session);
     return response;
 }
 
