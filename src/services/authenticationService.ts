@@ -1,4 +1,4 @@
-import {authenticateUser,createUser,loginUser,resendEmail} from "../data/user";
+import {authenticateUser,createUser,loginUser,resendEmail,sendResetPassword} from "../data/user";
 import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
@@ -49,4 +49,15 @@ function passwordCheck(password: string){
     }
 }
 
-export { register, login,resendVerification };
+async function resetPassword(email: string){
+    try {
+        return await sendResetPassword(email);
+    }
+    catch (error) {
+        console.error("Error sending password reset email:", error);
+        return error;
+    }
+}
+
+
+export { register, login,resendVerification , resetPassword };

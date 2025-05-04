@@ -44,4 +44,14 @@ async function resendEmail(email: string){
         throw error;
     }
 }
-export { authenticateUser, loginUser,createUser,resendEmail };
+
+async function sendResetPassword(email: string){
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+        console.error("Error sending password reset email:", error);
+        throw error;
+    }
+    return data;    
+}
+
+export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword };

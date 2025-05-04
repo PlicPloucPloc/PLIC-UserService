@@ -53,8 +53,8 @@ describe("Resend", () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: {"email":"jhon.doe@lorem.ipsum"},
+            body: "{\"email\":\"john.doe@lorem.ipsum\"}",
         });
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(200);
     })
 })
