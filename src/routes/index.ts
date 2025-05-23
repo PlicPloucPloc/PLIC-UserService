@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
-import { register, login, resendVerification, resetPassword} from "../services/authenticationService";
+import { register, login, resendVerification, resetPassword} from "../services/authentication_service";
 import { HttpError } from "elysia-http-error";
+import { checkEmailExist } from "../services/authentication_service";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
@@ -28,10 +29,7 @@ userRoutes.post("/register", async ({ body }) => {
                 "format": "email"
             }),
             password: t.String(),
-            age: t.Number({
-                minimum: 10,
-                maximum: 120
-            }),
+            birthdate: t.Date(),
         })
     });
 
@@ -67,7 +65,6 @@ userRoutes.post("/login", async ({ body }) => {
     });
 
 userRoutes.get("/forgotPassword/:email", async ({ params }) => {
-        console.log(params);
         const resp = await resetPassword(params.email);
         if (resp instanceof HttpError) {
             return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
@@ -81,5 +78,9 @@ userRoutes.get("/forgotPassword/:email", async ({ params }) => {
             email: t.String()
     })
     })
+
+userRoutes.get("/checkEmail/:email", async ({ params }) => {
+    return await checkEmailExist(params.email);
+})
 
 export default userRoutes;
