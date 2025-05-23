@@ -1,12 +1,8 @@
 class LoginResponse {
-    accessToken: string;
-    refreshToken: string;
-    expiresAt: number | undefined;
+    session: any;
 
-    constructor(accessToken: string, refreshToken: string, expiresAt: number | undefined) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.expiresAt = expiresAt;
+    constructor(session: any) {
+        this.session = session;
     }
 }
 
