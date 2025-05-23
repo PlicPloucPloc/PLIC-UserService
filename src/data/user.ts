@@ -71,6 +71,15 @@ async function getAllUsers() {
     return data;
 }
 
+async function checkUser(bearer: string) {
+    const { data, error } = await supabase.auth.getUser(bearer);
+    if (error) {
+        console.error("Error checking user:", error);
+        throw error;
+    }
+    return data.user;
+}
+
 async function emailExist(email: string) : Promise<boolean> {
     const { data, error } = await supabase
         .from("users")
@@ -83,4 +92,4 @@ async function emailExist(email: string) : Promise<boolean> {
     return data.length > 0;
 }
 
-export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById };
+export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById, checkUser };

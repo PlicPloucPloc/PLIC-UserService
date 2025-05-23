@@ -1,7 +1,8 @@
 import { Elysia, t } from "elysia";
 import { allUsers, userById } from "../services/infoService";
-import { register, login, resendVerification, resetPassword, checkEmailExist} from "../services/authentication_service";
+import { register, login, resendVerification, resetPassword, checkEmailExist, verifyUser} from "../services/authentication_service";
 import { HttpError } from "elysia-http-error";
+import bearer from "@elysiajs/bearer";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
@@ -27,6 +28,20 @@ userRoutes.get("/:id", async ({params}) => {
         id: t.String()
     })
 });
+
+userRoutes.use(bearer()).get('/isLoggedIn', async ({ bearer }) => {
+    await verifyUser(bearer); 
+    return "OK";
+}, {
+    beforeHandle({ bearer, set, error }) {
+        if (!bearer) {
+            set.headers[
+                'WWW-Authenticate'
+            ] = `Bearer realm='sign', error="invalid_request"`
+            return error(400, 'Unauthorized')
+        }
+    }
+})
 
 userRoutes.post("/register", async ({ body }) => {
         var resp = await register(body);

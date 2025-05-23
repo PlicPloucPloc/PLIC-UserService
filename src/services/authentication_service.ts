@@ -1,4 +1,4 @@
-import {authenticateUser,createUser,emailExist,loginUser,resendEmail,sendResetPassword} from "../data/user";
+import {authenticateUser,checkUser,createUser,emailExist,loginUser,resendEmail,sendResetPassword} from "../data/user";
 import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
@@ -63,5 +63,11 @@ async function checkEmailExist(email: string) : Promise<boolean> {
     return await emailExist(email);
 }
 
+async function verifyUser(bearer: string) {
+    const user = await checkUser(bearer);
+    if (!user) {
+        throw HttpError.Unauthorized("Unauthorized", {status: 401});
+    }
+}
 
-export { register, login,resendVerification , resetPassword, checkEmailExist}; 
+export { register, login,resendVerification , resetPassword, checkEmailExist, verifyUser, passwordCheck}; 
