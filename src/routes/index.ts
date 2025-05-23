@@ -1,7 +1,6 @@
 import { Elysia, t } from "elysia";
-import { register, login, resendVerification, resetPassword} from "../services/authentication_service";
+import { register, login, resendVerification, resetPassword, checkEmailExist} from "../services/authentication_service";
 import { HttpError } from "elysia-http-error";
-import { checkEmailExist } from "../services/authentication_service";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
