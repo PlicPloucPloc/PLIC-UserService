@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
-import { register, login, resendVerification, resetPassword} from "../services/authenticationService";
 import { allUsers, userById } from "../services/infoService";
+import { register, login, resendVerification, resetPassword, checkEmailExist} from "../services/authentication_service";
 import { HttpError } from "elysia-http-error";
 
 const userRoutes = new Elysia({prefix: "/user"});
@@ -29,33 +29,30 @@ userRoutes.get("/:id", async ({params}) => {
 });
 
 userRoutes.post("/register", async ({ body }) => {
-    var resp = await register(body);
-    if (resp instanceof HttpError) {
-        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
-    }
-    else {
-        return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
-    }
-}, {
-    body : t.Object({
-        firstName: t.String({
-            minLength: 1,
-            maxLength: 100
-        }),
-        lastName: t.String({
-            minLength: 1,
-            maxLength: 100
-        }),
-        email: t.String({
-            "format": "email"
-        }),
-        password: t.String(),
-        age: t.Number({
-            minimum: 10,
-            maximum: 120
-        }),
-    })
-});
+        var resp = await register(body);
+        if (resp instanceof HttpError) {
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        }
+        else {
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        }
+    }, {
+        body : t.Object({
+            firstName: t.String({
+                minLength: 1,
+                maxLength: 100
+            }),
+            lastName: t.String({
+                minLength: 1,
+                maxLength: 100
+            }),
+            email: t.String({
+                "format": "email"
+            }),
+            password: t.String(),
+            birthdate: t.Date(),
+        })
+    });
 
 userRoutes.post("/resend", async ({ body }) => {
 
@@ -87,19 +84,22 @@ userRoutes.post("/login", async ({ body }) => {
 });
 
 userRoutes.get("/forgotPassword/:email", async ({ params }) => {
-   console.log(params);
-   const resp = await resetPassword(params.email);
-   if (resp instanceof HttpError) {
-       return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
-   }
-   else {
-       return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
-   }
-},
-{
-   params: t.Object({
-       email: t.String()
-   })
+        const resp = await resetPassword(params.email);
+        if (resp instanceof HttpError) {
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        }
+        else {
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        }
+    },
+    {
+        params: t.Object({
+            email: t.String()
+    })
+    })
+
+userRoutes.get("/checkEmail/:email", async ({ params }) => {
+    return await checkEmailExist(params.email);
 })
 
 export default userRoutes;

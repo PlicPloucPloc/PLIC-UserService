@@ -7,7 +7,7 @@ async function authenticateUser(email: string, password: string) : Promise<strin
         password: password
     });
     if (error) {
-        console.error("Error creating user:", error);
+        console.error("authenticateUse: Error creating user:", error);
         throw error;
     }
     return data.user!.id;
@@ -27,15 +27,15 @@ async function loginUser(email: string, password: string){
 
 async function createUser(user: User){
     console.log("Creating user: ", user);
-    const { data,error } = await supabase.from("users").insert([user]) ;
+    const { error } = await supabase.from("users").insert([user]) ;
     if (error) {
-        console.error("Error creating user:", error);
+        console.error("creatingUser: Error creating user:", error);
         throw error;
     }
 }
 
 async function resendEmail(email: string){
-    const {data,error } = await supabase.auth.resend({
+    const { error } = await supabase.auth.resend({
         email: email,
         type: "signup"
     });
@@ -71,4 +71,16 @@ async function getAllUsers() {
     return data;
 }
 
-export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, getUserById, getAllUsers };
+async function emailExist(email: string) : Promise<boolean> {
+    const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email);
+    if (error) {
+        console.error("Error checking email existence:", error);
+        throw error;
+    }
+    return data.length > 0;
+}
+
+export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById };

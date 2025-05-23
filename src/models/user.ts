@@ -2,13 +2,13 @@ class User{
     id: string;
     firstName: string;
     lastName: string;
-    age: number;
+    birthdate: Date;
 
-    constructor(id: string, firstName: string, lastName: string, age: number) {
+    constructor(id: string, firstName: string, lastName: string, birthdate: Date) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.age = age;
+        this.birthdate = birthdate;
     }
 }
 

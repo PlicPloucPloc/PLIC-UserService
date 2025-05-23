@@ -1,4 +1,4 @@
-import {authenticateUser,createUser,loginUser,resendEmail,sendResetPassword} from "../data/user";
+import {authenticateUser,createUser,emailExist,loginUser,resendEmail,sendResetPassword} from "../data/user";
 import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
@@ -59,5 +59,9 @@ async function resetPassword(email: string){
     }
 }
 
+async function checkEmailExist(email: string) : Promise<boolean> {
+    return await emailExist(email);
+}
 
-export { register, login,resendVerification , resetPassword };
+
+export { register, login,resendVerification , resetPassword, checkEmailExist}; 
