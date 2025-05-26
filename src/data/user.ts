@@ -13,6 +13,15 @@ async function authenticateUser(email: string, password: string) : Promise<strin
     return data.user!.id;
 }
 
+async function refreshUser(bearer: string) {
+    const { data, error } = await supabase.auth.refreshSession({refresh_token: bearer});
+    if (error) {
+        console.error("Error refreshing user session:", error);
+        throw error;
+    }
+    return data.session;
+}
+
 async function loginUser(email: string, password: string){
     const { data,error } = await supabase.auth.signInWithPassword({
         email: email,
@@ -46,7 +55,7 @@ async function resendEmail(email: string){
 }
 
 async function sendResetPassword(email: string){
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) {
         console.error("Error sending password reset email:", error);
         throw error;
@@ -92,4 +101,4 @@ async function emailExist(email: string) : Promise<boolean> {
     return data.length > 0;
 }
 
-export { authenticateUser, loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById, checkUser };
+export { authenticateUser, refreshUser,loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById, checkUser };

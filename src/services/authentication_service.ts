@@ -1,4 +1,4 @@
-import {authenticateUser,checkUser,createUser,emailExist,loginUser,resendEmail,sendResetPassword} from "../data/user";
+import {authenticateUser,checkUser,createUser,emailExist,loginUser,refreshUser,resendEmail,sendResetPassword} from "../data/user";
 import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
@@ -68,6 +68,15 @@ async function verifyUser(bearer: string) {
     if (!user) {
         throw HttpError.Unauthorized("Unauthorized", {status: 401});
     }
+    return user.id;
 }
 
-export { register, login,resendVerification , resetPassword, checkEmailExist, verifyUser, passwordCheck}; 
+async function getNewSession(bearer: string){
+    const ret = await refreshUser(bearer);
+    if (!ret) {
+        throw HttpError.Unauthorized("Unauthorized", {status: 401});
+    }
+    return ret;
+}
+
+export { register, login,resendVerification , resetPassword, checkEmailExist, verifyUser, passwordCheck, getNewSession}; 
