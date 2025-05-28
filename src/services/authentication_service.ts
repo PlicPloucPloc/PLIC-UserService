@@ -3,6 +3,7 @@ import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
 import { HttpError } from "elysia-http-error";
+import { AuthApiError } from "@supabase/supabase-js";
 
 async function register(request: RegisterRequest){
     try {
@@ -18,11 +19,23 @@ async function register(request: RegisterRequest){
     await createUser(new User(id,request.firstName,request.lastName,request.birthdate));
 }
 
-async function login(email: string, password: string) : Promise<LoginResponse>{
-    console.log("Login in user:", email);
-    var session = await loginUser(email,password);
-    var response = new LoginResponse(session);
-    return response;
+async function login(email: string, password: string) {
+    try {
+        console.log("Login in user:", email);
+        var session = await loginUser(email,password);
+        var response = new LoginResponse(session);
+        console.log("Response: " + response);
+        return new Response( JSON.stringify(response), {status: 200, headers: { "Content-Type": "application/json" } });
+    } catch (error) {
+        console.log(error);
+        if (error instanceof AuthApiError && error.message === "Invalid login credentials"){
+                return new Response("Invalid login credentials", {status: 200, headers: { "Content-Type": "text/plain" } });
+            }
+        if (error instanceof HttpError) {
+            return error;
+        }
+        throw error;
+    }
 }
 
 async function resendVerification(email: string){

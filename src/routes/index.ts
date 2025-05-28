@@ -106,8 +106,7 @@ userRoutes.post("/resend", async ({ body }) => {
     })
 });
 userRoutes.post("/login", async ({ body }) => {
-   var resp = await login(body.email,body.password);
-   return new Response( JSON.stringify(resp), {status: 200, headers: { "Content-Type": "application/json" } });
+   return await login(body.email,body.password);
 }, {
    body : t.Object({
        email: t.String({
