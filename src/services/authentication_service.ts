@@ -27,10 +27,14 @@ async function login(email: string, password: string) {
         console.log("Response: " + response);
         return new Response( JSON.stringify(response), {status: 200, headers: { "Content-Type": "application/json" } });
     } catch (error) {
-        console.log(error);
-        if (error instanceof AuthApiError && error.message === "Invalid login credentials"){
-                return new Response("Invalid login credentials", {status: 200, headers: { "Content-Type": "text/plain" } });
-            }
+        const catchedErrors = [
+            "Invalid login credentials",
+            "Email not confirmed",
+        ]
+
+        if (error instanceof AuthApiError && catchedErrors.includes(error.message)) {
+            return new Response(JSON.stringify({ message: error.message}), {status: 401, headers: { "Content-Type": "application/json" } });
+        }
         if (error instanceof HttpError) {
             return error;
         }

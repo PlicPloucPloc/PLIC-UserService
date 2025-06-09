@@ -65,10 +65,10 @@ userRoutes.use(bearer()).get('/refresh', async ({ bearer }) => {
 userRoutes.post("/register", async ({ body }) => {
         var resp = await register(body);
         if (resp instanceof HttpError) {
-            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "application/json" } });
         }
         else {
-            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+            return new Response( "OK", {status: 201, headers: { "Content-Type": "application/json" } });
         }
     }, {
         body : t.Object({
@@ -132,7 +132,8 @@ userRoutes.get("/forgotPassword/:email", async ({ params }) => {
     })
 
 userRoutes.get("/checkEmail/:email", async ({ params }) => {
-    return await checkEmailExist(params.email);
+    const resp = await checkEmailExist(params.email);
+    return new Response(JSON.stringify({emailTaken: resp}), {status: 200, headers: { "Content-Type": "application/json" } });
 })
 
 export default userRoutes;

@@ -90,15 +90,13 @@ async function checkUser(bearer: string) {
 }
 
 async function emailExist(email: string) : Promise<boolean> {
-    const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email);
+    const { data: { users }, error } = await supabase.auth.admin.listUsers();
     if (error) {
-        console.error("Error checking email existence:", error);
+        console.error("Error checking user:", error);
         throw error;
     }
-    return data.length > 0;
+
+    return users.some(user => user.email === email);
 }
 
 export { authenticateUser, refreshUser,loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById, checkUser };
