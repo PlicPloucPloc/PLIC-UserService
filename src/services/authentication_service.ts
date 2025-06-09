@@ -85,7 +85,7 @@ async function verifyUser(bearer: string) {
     if (!user) {
         throw HttpError.Unauthorized("Unauthorized", {status: 401});
     }
-    return user.id;
+    return new Response( JSON.stringify({id: user.id}), {status: 200, headers: { "Content-Type": "application/json" } });
 }
 
 async function getNewSession(bearer: string){
