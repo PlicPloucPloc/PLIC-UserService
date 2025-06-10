@@ -1,7 +1,9 @@
+name: Build and deploy docker image
+
 on: 
   push:
     tags:
-      - *.*
+      - '*.*'
 jobs:
   deploy:
     runs-on: ubuntu-latest
