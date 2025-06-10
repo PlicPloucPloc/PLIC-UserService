@@ -1,20 +1,15 @@
 import { Elysia, t } from "elysia";
-import { allUsers, userById } from "../services/infoService";
+import { allUsers, userById } from "../services/info_service";
 import { register, login, resendVerification, resetPassword, checkEmailExist, verifyUser, getNewSession} from "../services/authentication_service";
 import { HttpError } from "elysia-http-error";
 import bearer from "@elysiajs/bearer";
+import { AuthApiError } from "@supabase/supabase-js";
 
 const userRoutes = new Elysia({prefix: "/user"});
 
 // This route should not be exposed out of the app
 userRoutes.get("/", async () => {
-    var resp = await allUsers();
-    if (resp instanceof HttpError) {
-        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
-    }
-    else {
-        return resp;
-    }
+    return await allUsers();
 });
 
 // This route should not be exposed out of the app
@@ -22,7 +17,7 @@ userRoutes.get("/:id", async ({params}) => {
 
     var resp = await userById(params.id);
     if (resp instanceof HttpError) {
-        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "application/json" } });
     }
     else {
         return resp;
@@ -34,8 +29,15 @@ userRoutes.get("/:id", async ({params}) => {
 });
 
 userRoutes.use(bearer()).get('/id', async ({ bearer }) => {
-    const ret = await verifyUser(bearer); 
-    return ret;
+    try {
+        return await verifyUser(bearer); 
+    }
+    catch(error) {
+        if (error instanceof HttpError){
+            return error;
+        }
+        throw error;
+    }
 }, {
     beforeHandle({ bearer, set, error }) {
         if (!bearer) {
@@ -48,8 +50,15 @@ userRoutes.use(bearer()).get('/id', async ({ bearer }) => {
 });
 
 userRoutes.use(bearer()).get('/refresh', async ({ bearer }) => {
-    const ret = await getNewSession(bearer); 
-    return ret;
+    try {
+        return await getNewSession(bearer); 
+    }
+    catch (error){
+        if (error instanceof HttpError.Unauthorized){
+            return error;
+        }
+        throw error;
+    }
 }, {
     beforeHandle({ bearer, set, error }) {
         if (!bearer) {
@@ -92,10 +101,10 @@ userRoutes.post("/resend", async ({ body }) => {
 
     var resp = await resendVerification(body.email); 
     if (resp instanceof HttpError) {
-        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
+        return resp;
     }
     else {
-        return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        return new Response( "OK", {status: 200, headers: { "Content-Type": "application/json" } });
     }
 },
 {
@@ -106,7 +115,20 @@ userRoutes.post("/resend", async ({ body }) => {
     })
 });
 userRoutes.post("/login", async ({ body }) => {
-   return await login(body.email,body.password);
+    try {
+       var resp = await login(body.email,body.password);
+       if (resp instanceof AuthApiError){
+            return new Response(JSON.stringify({ message: resp.message}), {status: 401, headers: { "Content-Type": "application/json" } });
+       }
+       return new Response(resp as string, {status: 200, headers: {"Content-Type": "application/json"}});
+    }
+    catch(error){
+        if (error instanceof HttpError){
+            return error;
+        }
+        throw error;
+    }
+
 }, {
    body : t.Object({
        email: t.String({
@@ -117,12 +139,14 @@ userRoutes.post("/login", async ({ body }) => {
 });
 
 userRoutes.get("/forgotPassword/:email", async ({ params }) => {
-        const resp = await resetPassword(params.email);
-        if (resp instanceof HttpError) {
-            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "text/plain" } });
-        }
-        else {
-            return new Response( "OK", {status: 200, headers: { "Content-Type": "text/plain" } });
+        try {
+            await resetPassword(params.email);
+            return new Response( "OK", {status: 200, headers: { "Content-Type": "application/json" } });
+        } catch(error) {
+            if (error instanceof HttpError){
+                return error;
+            }
+            throw error;
         }
     },
     {
