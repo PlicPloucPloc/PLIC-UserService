@@ -33,12 +33,12 @@ userRoutes.use(bearer()).get('/id', async ({ bearer }) => {
         throw error;
     }
 }, {
-    beforeHandle({ bearer, set, error }) {
+    beforeHandle({ bearer, set }) {
         if (!bearer) {
             set.headers[
                 'WWW-Authenticate'
             ] = `Bearer realm='sign', error="invalid_request"`
-            return error(400, 'Unauthorized')
+            return HttpError.Unauthorized("Bearer not found or invalid");
         }
     }
 });
@@ -54,12 +54,12 @@ userRoutes.use(bearer()).get('/refresh', async ({ bearer }) => {
         throw error;
     }
 }, {
-    beforeHandle({ bearer, set, error }) {
+    beforeHandle({ bearer, set }) {
         if (!bearer) {
             set.headers[
                 'WWW-Authenticate'
             ] = `Bearer realm='sign', error="invalid_request"`
-            return error(400, 'Unauthorized')
+            return HttpError.Unauthorized("Bearer not found or invalid");
         }
     }
 });
