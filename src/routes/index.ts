@@ -14,7 +14,6 @@ userRoutes.get("/", async () => {
 
 // This route should not be exposed out of the app
 userRoutes.get("/:id", async ({params}) => {
-
     return await userById(params.id);
 }, {
     params: t.Object({
