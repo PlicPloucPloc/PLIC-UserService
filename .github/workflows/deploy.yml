@@ -17,4 +17,4 @@ jobs:
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}"
       - name: Push image
-        run: IMAGE_ID=ghcr.io/${{ github.repository_owner }}/User-Service:${{github.ref_name}}
+        run: IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{github.ref_name}}
