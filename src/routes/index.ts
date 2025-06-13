@@ -14,14 +14,7 @@ userRoutes.get("/", async () => {
 
 // This route should not be exposed out of the app
 userRoutes.get("/:id", async ({params}) => {
-
-    var resp = await userById(params.id);
-    if (resp instanceof HttpError) {
-        return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "application/json" } });
-    }
-    else {
-        return resp;
-    }
+    return await userById(params.id);
 }, {
     params: t.Object({
         id: t.String()
@@ -39,12 +32,12 @@ userRoutes.use(bearer()).get('/id', async ({ bearer }) => {
         throw error;
     }
 }, {
-    beforeHandle({ bearer, set, error }) {
+    beforeHandle({ bearer, set }) {
         if (!bearer) {
             set.headers[
                 'WWW-Authenticate'
             ] = `Bearer realm='sign', error="invalid_request"`
-            return error(400, 'Unauthorized')
+            return HttpError.Unauthorized("Bearer not found or invalid");
         }
     }
 });
@@ -60,12 +53,12 @@ userRoutes.use(bearer()).get('/refresh', async ({ bearer }) => {
         throw error;
     }
 }, {
-    beforeHandle({ bearer, set, error }) {
+    beforeHandle({ bearer, set }) {
         if (!bearer) {
             set.headers[
                 'WWW-Authenticate'
             ] = `Bearer realm='sign', error="invalid_request"`
-            return error(400, 'Unauthorized')
+            return HttpError.Unauthorized("Bearer not found or invalid");
         }
     }
 });
@@ -74,10 +67,10 @@ userRoutes.use(bearer()).get('/refresh', async ({ bearer }) => {
 userRoutes.post("/register", async ({ body }) => {
         var resp = await register(body);
         if (resp instanceof HttpError) {
-            return new Response( resp.message, {status: resp.statusCode, headers: { "Content-Type": "application/json" } });
+            return resp;
         }
         else {
-            return new Response( "OK", {status: 201, headers: { "Content-Type": "application/json" } });
+            return new Response( "{\"status\":\"OK\"}", {status: 201, headers: { "Content-Type": "application/json" } });
         }
     }, {
         body : t.Object({
@@ -104,7 +97,7 @@ userRoutes.post("/resend", async ({ body }) => {
         return resp;
     }
     else {
-        return new Response( "OK", {status: 200, headers: { "Content-Type": "application/json" } });
+        return new Response( "{\"status\":\"OK\"}", {status: 200, headers: { "Content-Type": "application/json" } });
     }
 },
 {
@@ -120,7 +113,7 @@ userRoutes.post("/login", async ({ body }) => {
        if (resp instanceof AuthApiError){
             return new Response(JSON.stringify({ message: resp.message}), {status: 401, headers: { "Content-Type": "application/json" } });
        }
-       return new Response(resp as string, {status: 200, headers: {"Content-Type": "application/json"}});
+       return resp;
     }
     catch(error){
         if (error instanceof HttpError){
@@ -141,7 +134,7 @@ userRoutes.post("/login", async ({ body }) => {
 userRoutes.get("/forgotPassword/:email", async ({ params }) => {
         try {
             await resetPassword(params.email);
-            return new Response( "OK", {status: 200, headers: { "Content-Type": "application/json" } });
+            return new Response( "{\"status\":\"OK\"}", {status: 200, headers: { "Content-Type": "application/json" } });
         } catch(error) {
             if (error instanceof HttpError){
                 return error;
