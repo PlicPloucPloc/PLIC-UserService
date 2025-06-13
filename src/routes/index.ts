@@ -23,7 +23,8 @@ userRoutes.get("/:id", async ({params}) => {
 
 userRoutes.use(bearer()).get('/id', async ({ bearer }) => {
     try {
-        return await verifyUser(bearer); 
+        const id : string = await verifyUser(bearer); 
+        return new Response( JSON.stringify({id: id}), {status: 200, headers: {"Content-Type": "application/json"}});
     }
     catch(error) {
         if (error instanceof HttpError){
@@ -111,7 +112,7 @@ userRoutes.post("/login", async ({ body }) => {
     try {
        var resp = await login(body.email,body.password);
        if (resp instanceof AuthApiError){
-            return new Response(JSON.stringify({ message: resp.message}), {status: 401, headers: { "Content-Type": "application/json" } });
+           return HttpError.Unauthorized(resp.message);
        }
        return resp;
     }
@@ -144,7 +145,9 @@ userRoutes.get("/forgotPassword/:email", async ({ params }) => {
     },
     {
         params: t.Object({
-            email: t.String()
+            email: t.String({
+                format: "email"
+            })
     })
     })
 
