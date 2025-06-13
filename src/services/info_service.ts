@@ -1,10 +1,11 @@
 import {getUserById, getAllUsers} from "../data/user";
+import User from "../models/user";
 
-async function userById(id: string) {
+async function userById(id: string) : Promise<User>{
     return (await getUserById(id)); ;
 }
 
-async function allUsers() {
+async function allUsers() : Promise<User[]>{
     return await getAllUsers();
 }
 

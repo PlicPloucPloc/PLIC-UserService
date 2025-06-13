@@ -3,9 +3,9 @@ import RegisterRequest from "../routes/requests/register";
 import LoginResponse from "../routes/responses/login";
 import User from "../models/user";
 import { HttpError } from "elysia-http-error";
-import { AuthApiError } from "@supabase/supabase-js";
+import { AuthApiError, Session } from "@supabase/supabase-js";
 
-async function register(request: RegisterRequest){
+async function register(request: RegisterRequest) : Promise<unknown>{
     try {
         passwordCheck(request.password);
     }
@@ -19,26 +19,27 @@ async function register(request: RegisterRequest){
     await createUser(new User(id,request.firstName,request.lastName,request.birthdate));
 }
 
-async function login(email: string, password: string) {
+async function login(email: string, password: string) : Promise<string | unknown>{
     try {
         console.log("Login in user:", email);
         var session = await loginUser(email,password);
         var response = new LoginResponse(session);
         console.log("Response: " + response);
-        return new Response( JSON.stringify(response), {status: 200, headers: { "Content-Type": "application/json" } });
+        return JSON.stringify(response);
     } catch (error) {
-        console.log(error);
-        if (error instanceof AuthApiError && error.message === "Invalid login credentials"){
-                return new Response("Invalid login credentials", {status: 200, headers: { "Content-Type": "text/plain" } });
-            }
-        if (error instanceof HttpError) {
+        const catchedErrors = [
+            "Invalid login credentials",
+            "Email not confirmed",
+        ]
+
+        if (error instanceof AuthApiError && catchedErrors.includes(error.message)) {
             return error;
         }
         throw error;
     }
 }
 
-async function resendVerification(email: string){
+async function resendVerification(email: string) : Promise<unknown>{
     try {
         console.log("Resending verification email to: ", email);
         await resendEmail(email);
@@ -48,7 +49,7 @@ async function resendVerification(email: string){
     }
 }
 
-function passwordCheck(password: string){
+function passwordCheck(password: string) : void{
     if (password.length < 8) {
         throw HttpError.BadRequest("Password must be at least 8 characters long.", {status: 400});
     }
@@ -62,13 +63,13 @@ function passwordCheck(password: string){
     }
 }
 
-async function resetPassword(email: string){
+async function resetPassword(email: string) : Promise<unknown>{
     try {
         return await sendResetPassword(email);
     }
     catch (error) {
         console.error("Error sending password reset email:", error);
-        return error;
+        throw error;
     }
 }
 
@@ -76,16 +77,16 @@ async function checkEmailExist(email: string) : Promise<boolean> {
     return await emailExist(email);
 }
 
-async function verifyUser(bearer: string) {
-    const user = await checkUser(bearer);
-    if (!user) {
+async function verifyUser(bearer: string) : Promise<string>{
+    const id : string = await checkUser(bearer);
+    if (!id) {
         throw HttpError.Unauthorized("Unauthorized", {status: 401});
     }
-    return user.id;
+    return id;
 }
 
-async function getNewSession(bearer: string){
-    const ret = await refreshUser(bearer);
+async function getNewSession(bearer: string) : Promise<Session>{
+    const ret : Session | null = await refreshUser(bearer);
     if (!ret) {
         throw HttpError.Unauthorized("Unauthorized", {status: 401});
     }

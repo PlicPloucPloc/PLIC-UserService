@@ -1,3 +1,4 @@
+import { Session } from "@supabase/supabase-js";
 import { supabase } from "../libs/supabase";
 import User from "../models/user";
 
@@ -13,7 +14,7 @@ async function authenticateUser(email: string, password: string) : Promise<strin
     return data.user!.id;
 }
 
-async function refreshUser(bearer: string) {
+async function refreshUser(bearer: string) : Promise<Session | null>{
     const { data, error } = await supabase.auth.refreshSession({refresh_token: bearer});
     if (error) {
         console.error("Error refreshing user session:", error);
@@ -22,7 +23,7 @@ async function refreshUser(bearer: string) {
     return data.session;
 }
 
-async function loginUser(email: string, password: string){
+async function loginUser(email: string, password: string) : Promise<Session>{
     const { data,error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password
@@ -34,7 +35,7 @@ async function loginUser(email: string, password: string){
     return data.session;
 }
 
-async function createUser(user: User){
+async function createUser(user: User) : Promise<void>{
     console.log("Creating user: ", user);
     const { error } = await supabase.from("users").insert([user]) ;
     if (error) {
@@ -43,7 +44,7 @@ async function createUser(user: User){
     }
 }
 
-async function resendEmail(email: string){
+async function resendEmail(email: string) : Promise<void>{
     const { error } = await supabase.auth.resend({
         email: email,
         type: "signup"
@@ -54,7 +55,7 @@ async function resendEmail(email: string){
     }
 }
 
-async function sendResetPassword(email: string){
+async function sendResetPassword(email: string) : Promise<void>{
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) {
         console.error("Error sending password reset email:", error);
@@ -62,7 +63,7 @@ async function sendResetPassword(email: string){
     }
 }
 
-async function getUserById(id: string) {
+async function getUserById(id: string) : Promise<User>{
     const { data, error } = await supabase.from("users").select("*").eq("id", id);
     if (error) {
         console.error("Error getting user:", error);
@@ -71,7 +72,7 @@ async function getUserById(id: string) {
     return data[0]
 }
 
-async function getAllUsers() {
+async function getAllUsers() : Promise<User[]>{
     const { data, error } = await supabase.from("users").select("*");
     if (error) {
         console.error("Error getting all users:", error);
@@ -80,25 +81,23 @@ async function getAllUsers() {
     return data;
 }
 
-async function checkUser(bearer: string) {
+async function checkUser(bearer: string) : Promise<string> {
     const { data, error } = await supabase.auth.getUser(bearer);
     if (error) {
         console.error("Error checking user:", error);
         throw error;
     }
-    return data.user;
+    return data.user.id;
 }
 
 async function emailExist(email: string) : Promise<boolean> {
-    const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email);
+    const { data: { users }, error } = await supabase.auth.admin.listUsers();
     if (error) {
-        console.error("Error checking email existence:", error);
+        console.error("Error checking user:", error);
         throw error;
     }
-    return data.length > 0;
+
+    return users.some(user => user.email === email);
 }
 
 export { authenticateUser, refreshUser,loginUser,createUser,resendEmail,sendResetPassword, emailExist,getAllUsers, getUserById, checkUser };
