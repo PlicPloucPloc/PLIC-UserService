@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build . --file Dockerfile --tag ${{ github.ref_name }}
+        run: docker build . --file Dockerfile --tag $IMAGE_ID
+        env:
+          IMAGE_ID: ghcr.io/plicploucploc/userservice:${{github.ref_name}}
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}"
       - name: Push image
