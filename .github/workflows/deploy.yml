@@ -13,14 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set image tag
-        run: export IMAGE_ID=ghcr.io/plicploucploc/userservice:${{github.ref_name}}
+        id: tag
+        run: echo "tag=ghcr.io/plicploucploc/userservice:${{github.ref_name}}" >> $GITHUB_ENV
       - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_ID
+        run: docker build . --file Dockerfile --tag ${{ env.tag }}
       - name: Log in to registry
         uses: docker/login-action@v3
         with:
           username: ${{ github.actor }}
           password: echo "${{ secrets.GITHUB_TOKEN }}"
       - name: Push image
-        run: docker push $IMAGE_ID
+        run: docker push ${{ env.tag }}
 
