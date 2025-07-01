@@ -5,7 +5,7 @@ import { HttpError } from "elysia-http-error";
 import bearer from "@elysiajs/bearer";
 import { AuthApiError } from "@supabase/supabase-js";
 
-const userRoutes = new Elysia({prefix: "/user"});
+const userRoutes = new Elysia();
 
 // This route should not be exposed out of the app
 userRoutes.get("/", async () => {
