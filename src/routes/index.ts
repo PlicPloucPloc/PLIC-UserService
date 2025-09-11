@@ -21,12 +21,32 @@ userRoutes.get('/', async () => {
 });
 
 // This route should not be exposed out of the app
-userRoutes.get(
+userRoutes.use(bearer()).get(
     '/:id',
-    async ({ params }) => {
-        return await userById(params.id);
+    async ({ bearer, params }) => {
+        try {
+            await verifyUser(bearer);
+            return await userById(params.id);
+        } catch (error) {
+            if (error instanceof HttpError) {
+                return new Response(`{\"message\": ${error.message}}`, {
+                    status: error.statusCode,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+            throw error;
+        }
     },
     {
+        beforeHandle({ bearer, set }) {
+            if (!bearer) {
+                set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
+                return new Response(`{\"message\": \"Bearer not found or invalid"}`, {
+                    status: 401,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+        },
         params: t.Object({
             id: t.String(),
         }),
@@ -38,10 +58,7 @@ userRoutes.use(bearer()).get(
     async ({ bearer }) => {
         try {
             const id: string = await verifyUser(bearer);
-            return new Response(JSON.stringify({ id: id }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return await userById(id);
         } catch (error) {
             if (error instanceof HttpError) {
                 return new Response(`{\"message\": ${error.message}}`, {

@@ -24,6 +24,7 @@ async function refreshUser(bearer: string): Promise<Session | null> {
 }
 
 async function loginUser(email: string, password: string): Promise<Session> {
+    console.log('Loggin in user: ', email);
     const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
@@ -32,6 +33,7 @@ async function loginUser(email: string, password: string): Promise<Session> {
         console.error('Error logging in user:', error);
         throw error;
     }
+    console.log('Login data: ', data);
     return data.session;
 }
 

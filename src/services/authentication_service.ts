@@ -13,6 +13,7 @@ import LoginResponse from '../routes/responses/login';
 import User from '../models/user';
 import { HttpError } from 'elysia-http-error';
 import { AuthApiError, Session } from '@supabase/supabase-js';
+import { createUserNode } from '../data/relations';
 
 async function register(request: RegisterRequest): Promise<unknown> {
     try {
@@ -31,6 +32,7 @@ async function login(email: string, password: string): Promise<string | unknown>
     try {
         console.log('Login in user:', email);
         var session = await loginUser(email, password);
+        await createUserNode(session.access_token);
         var response = new LoginResponse(session);
         console.log('Response: ' + response);
         return JSON.stringify(response);
