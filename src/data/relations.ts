@@ -1,4 +1,4 @@
-import { HttpError } from "elysia-http-error";
+import { HttpError } from 'elysia-http-error';
 
 async function createUserNode(bearer: string): Promise<void> {
     const userUrl = (process.env.LIKE_URL || 'http://localhost:3000') + '/userNode';
@@ -11,8 +11,7 @@ async function createUserNode(bearer: string): Promise<void> {
     });
     try {
         await fetch(request);
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error creating user node:', error);
         throw new HttpError('Error creating user node', 500);
     }

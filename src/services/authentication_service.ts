@@ -1,6 +1,7 @@
 import {
     authenticateUser,
     checkUser,
+    createprofilePictureSignedUploadUrl,
     createUser,
     emailExist,
     loginUser,
@@ -26,6 +27,9 @@ async function register(request: RegisterRequest): Promise<unknown> {
     var id: string = await authenticateUser(request.email, request.password);
     console.log('Successfully authenticater user: ', id);
     await createUser(new User(id, request.firstName, request.lastName, request.birthdate));
+
+    const registerResponse = await createprofilePictureSignedUploadUrl(id);
+    return JSON.stringify(registerResponse);
 }
 
 async function login(email: string, password: string): Promise<string | unknown> {
