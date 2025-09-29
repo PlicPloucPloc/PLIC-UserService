@@ -20,7 +20,6 @@ userRoutes.get('/', async () => {
     return await allUsers();
 });
 
-// This route should not be exposed out of the app
 userRoutes.use(bearer()).get(
     '/:id',
     async ({ bearer, params }) => {
@@ -29,7 +28,7 @@ userRoutes.use(bearer()).get(
             return await userById(params.id);
         } catch (error) {
             if (error instanceof HttpError) {
-                return new Response(`{\"message\": ${error.message}}`, {
+                return new Response(`{message: ${error.message}}`, {
                     status: error.statusCode,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -41,7 +40,7 @@ userRoutes.use(bearer()).get(
         beforeHandle({ bearer, set }) {
             if (!bearer) {
                 set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{\"message\": \"Bearer not found or invalid"}`, {
+                return new Response(`{message: \"Bearer not found or invalid"}`, {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -61,7 +60,7 @@ userRoutes.use(bearer()).get(
             return await userById(id);
         } catch (error) {
             if (error instanceof HttpError) {
-                return new Response(`{\"message\": ${error.message}}`, {
+                return new Response(`{message: ${error.message}}`, {
                     status: error.statusCode,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -73,7 +72,7 @@ userRoutes.use(bearer()).get(
         beforeHandle({ bearer, set }) {
             if (!bearer) {
                 set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{\"message\": \"Bearer not found or invalid"}`, {
+                return new Response(`{message: \"Bearer not found or invalid"}`, {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -89,7 +88,7 @@ userRoutes.use(bearer()).get(
             return await getNewSession(bearer);
         } catch (error) {
             if (error instanceof HttpError) {
-                return new Response(`{\"message\": ${error.message}}`, {
+                return new Response(`{message: ${error.message}}`, {
                     status: error.statusCode,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -101,7 +100,7 @@ userRoutes.use(bearer()).get(
         beforeHandle({ bearer, set }) {
             if (!bearer) {
                 set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{\"message\": \"Bearer not found or invalid"}`, {
+                return new Response(`{message: \"Bearer not found or invalid"}`, {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -115,16 +114,12 @@ userRoutes.post(
     async ({ body }) => {
         var resp = await register(body);
         if (resp instanceof HttpError) {
-            return new Response(`{\"message\": ${resp.message}}`, {
+            return new Response(`{message: ${resp.message}}`, {
                 status: resp.statusCode,
                 headers: { 'Content-Type': 'application/json' },
             });
-        } else {
-            return new Response('{"status":"OK"}', {
-                status: 201,
-                headers: { 'Content-Type': 'application/json' },
-            });
         }
+        return resp;
     },
     {
         body: t.Object({
@@ -150,7 +145,7 @@ userRoutes.post(
     async ({ body }) => {
         var resp = await resendVerification(body.email);
         if (resp instanceof HttpError) {
-            return new Response(`{\"message\": ${resp.message}}`, {
+            return new Response(`{message: ${resp.message}}`, {
                 status: resp.statusCode,
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -180,7 +175,7 @@ userRoutes.post(
             return resp;
         } catch (error) {
             if (error instanceof HttpError) {
-                return new Response(`{\"message\": ${error.message}}`, {
+                return new Response(`{message: ${error.message}}`, {
                     status: error.statusCode,
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -209,7 +204,7 @@ userRoutes.get(
             });
         } catch (error) {
             if (error instanceof HttpError) {
-                return new Response(`{\"message\": ${error.message}}`, {
+                return new Response(`{message: ${error.message}}`, {
                     status: error.statusCode,
                     headers: { 'Content-Type': 'application/json' },
                 });

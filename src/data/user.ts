@@ -1,6 +1,7 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../libs/supabase';
 import User from '../models/user';
+import RegisterResponse from '../routes/responses/register';
 
 async function authenticateUser(email: string, password: string): Promise<string> {
     const { data, error } = await supabase.auth.signUp({
@@ -44,6 +45,20 @@ async function createUser(user: User): Promise<void> {
         console.error('creatingUser: Error creating user:', error);
         throw error;
     }
+}
+
+async function createprofilePictureSignedUploadUrl(userId: string): Promise<RegisterResponse> {
+    const { data, error } = await supabase.storage
+        .from('user-pictures')
+        .createSignedUploadUrl(`${userId}.png`);
+
+    if (error) {
+        console.error('creatingUser: Error creating user:', error);
+        throw error;
+    }
+
+    console.log(data);
+    return new RegisterResponse(data.path, data.token);
 }
 
 async function resendEmail(email: string): Promise<void> {
@@ -116,4 +131,5 @@ export {
     getAllUsers,
     getUserById,
     checkUser,
+    createprofilePictureSignedUploadUrl,
 };
