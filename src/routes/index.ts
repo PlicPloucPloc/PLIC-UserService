@@ -232,9 +232,10 @@ userRoutes.get('/checkEmail/:email', async ({ params }) => {
 userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
         const id: string = await verifyUser(bearer);
         if (!id) {
-            return new Response("User do not exist", { status: 401 });
+            return new Response("User do not exist", { status: 401, headers: { 'Content-Type': 'application/json' } });
         }
-        return getRecommendedCollocs(bearer);
+        var ret = await getRecommendedCollocs(bearer);
+        return new Response(JSON.stringify(ret), {status: 200, headers: { 'Content-Type': 'application/json' }});
     },
     {
         beforeHandle({ bearer, set }) {

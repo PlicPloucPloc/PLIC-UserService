@@ -14,9 +14,9 @@ export async function getRecommendedCollocs(bearer: string): Promise<{users: Use
     try {
         var userIds : string[] = (await fetchRecommendedCollocs(bearer)).userIds;
         var users: User[] = [];
-        userIds.forEach(async (id) => {
+        for (const id of userIds) {
             users.push(await getUserById(id));
-        })
+        }
         return {users: users};
     } catch (error) {
         console.error('Error getting recommended Collocs:', error);
