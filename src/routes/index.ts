@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import { allUsers, userById } from '../services/info_service';
+import { allUsers, getRecommendedCollocs, userById } from '../services/info_service';
 import {
     register,
     login,
@@ -228,5 +228,25 @@ userRoutes.get('/checkEmail/:email', async ({ params }) => {
         headers: { 'Content-Type': 'application/json' },
     });
 });
+
+userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
+        const id: string = await verifyUser(bearer);
+        if (!id) {
+            return new Response("User do not exist", { status: 401 });
+        }
+        return getRecommendedCollocs(bearer);
+    },
+    {
+        beforeHandle({ bearer, set }) {
+            if (!bearer) {
+                set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
+                return new Response(`{message: \"Bearer not found or invalid"}`, {
+                    status: 401,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+        },
+    }
+);
 
 export default userRoutes;
