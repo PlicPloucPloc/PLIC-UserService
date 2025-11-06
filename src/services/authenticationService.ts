@@ -63,7 +63,7 @@ function passwordCheck(password: string): Response {
     return handleResponse('{"status": "OK"}', 200);
 }
 
-export async function resetPassword(email: string): Promise<unknown> {
+export async function resetPassword(email: string): Promise<Response> {
     return handleResponse(JSON.stringify(await sendResetPassword(email)), 200);
 }
 
