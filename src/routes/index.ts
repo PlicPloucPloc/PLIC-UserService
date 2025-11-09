@@ -34,7 +34,7 @@ userRoutes.use(bearer()).get(
 );
 
 userRoutes.use(bearer()).get(
-    '/',
+    '/check',
     async ({ bearer }) => {
         try {
             const id: string = await verifyUser(bearer);
