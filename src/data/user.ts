@@ -54,7 +54,7 @@ export async function createUser(user: User): Promise<void> {
 export async function createprofilePictureSignedUploadUrl(userId: string): Promise<RegisterResponse> {
     const { data, error } = await supabase.storage
         .from('user-pictures')
-        .createSignedUploadUrl(`${userId}.png`);
+        .createSignedUploadUrl(`${userId}.jpeg`);
 
     if (error) {
         logger.error(`creatingUser: Error creating user: ${error}`);
