@@ -27,7 +27,7 @@ userRoutes.use(bearer()).get(
         beforeHandle({ bearer, set }) {
             if (!bearer) handleMissingBearer(set);
         },
-        params: t.Object({
+        query: t.Object({
             id: t.String(),
         }),
     },
