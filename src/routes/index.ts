@@ -8,7 +8,7 @@ import {
     getNewSession,
 } from '../services/authenticationService';
 import bearer from '@elysiajs/bearer';
-import { checkEmailExist, userById } from '../services/infoService';
+import { checkEmailExist, getRecommendedCollocs, userById } from '../services/infoService';
 import { handleError, handleMissingBearer } from '../services/responseService';
 
 const userRoutes = new Elysia();
@@ -172,7 +172,7 @@ userRoutes.get('/checkEmail', async ({ query }) => {
         }),
     },
 );
-/* TODO Move to like service
+
 userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
         const id: string = await verifyUser(bearer);
         if (!id) {
@@ -193,5 +193,5 @@ userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
         },
     }
 );
-*/
+
 export default userRoutes;
