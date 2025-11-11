@@ -1,4 +1,8 @@
 import { HttpError } from 'elysia-http-error';
+import { getLogger } from '../services/logger';
+import { Logger } from 'winston';
+
+const logger: Logger = getLogger('relationData');
 
 export async function createUserNode(bearer: string): Promise<void> {
     const userUrl = (process.env.LIKE_URL || 'http://localhost:3000') + '/userNode';
@@ -12,12 +16,12 @@ export async function createUserNode(bearer: string): Promise<void> {
     try {
         await fetch(request);
     } catch (error) {
-        console.error('Error creating user node:', error);
+        logger.error(`Error creating user node: ${error}`);
         throw new HttpError('Error creating user node', 500);
     }
 }
 
-export async function fetchRecommendedCollocs(bearer: string): Promise<{userIds: string[]}> {
+export async function fetchRecommendedCollocs(bearer: string): Promise<string[]> {
     const userUrl = (process.env.LIKE_URL || 'http://localhost:3000') + '/recommendedColloc';
     const request = new Request(userUrl, {
         method: 'get',
@@ -29,7 +33,7 @@ export async function fetchRecommendedCollocs(bearer: string): Promise<{userIds:
     try {
         return await (await fetch(request)).json();
     } catch (error) {
-        console.error('Error getting recommended Collocs:', error);
+        logger.error(`Error getting recommended Collocs: ${error}`);
         throw new HttpError('Error getting recommended Collocs', 500);
     }
 }

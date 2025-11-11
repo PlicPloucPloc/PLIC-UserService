@@ -1,82 +1,51 @@
 import { Elysia, t } from 'elysia';
-import { allUsers, getRecommendedCollocs, userById } from '../services/info_service';
 import {
     register,
     login,
     resendVerification,
     resetPassword,
-    checkEmailExist,
     verifyUser,
     getNewSession,
-} from '../services/authentication_service';
-import { HttpError } from 'elysia-http-error';
+} from '../services/authenticationService';
 import bearer from '@elysiajs/bearer';
-import { AuthApiError } from '@supabase/supabase-js';
+import { checkEmailExist, getRecommendedCollocs, userById } from '../services/infoService';
+import { handleError, handleMissingBearer } from '../services/responseService';
 
 const userRoutes = new Elysia();
 
-// This route should not be exposed out of the app
-userRoutes.get('/', async () => {
-    return await allUsers();
-});
-
 userRoutes.use(bearer()).get(
-    '/:id',
-    async ({ bearer, params }) => {
+    '/',
+    async ({ bearer, query }) => {
         try {
             await verifyUser(bearer);
-            return await userById(params.id);
+            return await userById(query.id);
         } catch (error) {
-            if (error instanceof HttpError) {
-                return new Response(`{message: ${error.message}}`, {
-                    status: error.statusCode,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-            throw error;
+            return handleError(error);
         }
     },
     {
         beforeHandle({ bearer, set }) {
-            if (!bearer) {
-                set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{message: \"Bearer not found or invalid"}`, {
-                    status: 401,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
+            if (!bearer) handleMissingBearer(set);
         },
-        params: t.Object({
+        query: t.Object({
             id: t.String(),
         }),
     },
 );
 
 userRoutes.use(bearer()).get(
-    '/id',
+    '/check',
     async ({ bearer }) => {
         try {
             const id: string = await verifyUser(bearer);
             return await userById(id);
         } catch (error) {
-            if (error instanceof HttpError) {
-                return new Response(`{message: ${error.message}}`, {
-                    status: error.statusCode,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-            throw error;
+            return handleError(error);
         }
     },
     {
         beforeHandle({ bearer, set }) {
-            if (!bearer) {
-                set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{message: \"Bearer not found or invalid"}`, {
-                    status: 401,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
+            if (!bearer) handleMissingBearer(set);
         },
     },
 );
@@ -87,24 +56,12 @@ userRoutes.use(bearer()).get(
         try {
             return await getNewSession(bearer);
         } catch (error) {
-            if (error instanceof HttpError) {
-                return new Response(`{message: ${error.message}}`, {
-                    status: error.statusCode,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-            throw error;
+            return handleError(error);
         }
     },
     {
         beforeHandle({ bearer, set }) {
-            if (!bearer) {
-                set.headers['WWW-Authenticate'] = `Bearer realm='sign', error="invalid_request"`;
-                return new Response(`{message: \"Bearer not found or invalid"}`, {
-                    status: 401,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
+            if (!bearer) handleMissingBearer(set);
         },
     },
 );
@@ -112,14 +69,11 @@ userRoutes.use(bearer()).get(
 userRoutes.post(
     '/register',
     async ({ body }) => {
-        var resp = await register(body);
-        if (resp instanceof HttpError) {
-            return new Response(`{message: ${resp.message}}`, {
-                status: resp.statusCode,
-                headers: { 'Content-Type': 'application/json' },
-            });
+        try {
+            return await register(body);
+        } catch (error) {
+            return handleError(error);
         }
-        return resp;
     },
     {
         body: t.Object({
@@ -143,17 +97,14 @@ userRoutes.post(
 userRoutes.post(
     '/resend',
     async ({ body }) => {
-        var resp = await resendVerification(body.email);
-        if (resp instanceof HttpError) {
-            return new Response(`{message: ${resp.message}}`, {
-                status: resp.statusCode,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        } else {
+        try{
+            await resendVerification(body.email);
             return new Response('{"status":"OK"}', {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
+        } catch(error) {
+            return handleError(error);
         }
     },
     {
@@ -168,19 +119,9 @@ userRoutes.post(
     '/login',
     async ({ body }) => {
         try {
-            var resp = await login(body.email, body.password);
-            if (resp instanceof AuthApiError) {
-                return HttpError.Unauthorized(resp.message);
-            }
-            return resp;
+            return await login(body.email, body.password);
         } catch (error) {
-            if (error instanceof HttpError) {
-                return new Response(`{message: ${error.message}}`, {
-                    status: error.statusCode,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-            throw error;
+            return handleError(error);
         }
     },
     {
@@ -193,27 +134,22 @@ userRoutes.post(
     },
 );
 
-userRoutes.get(
-    '/forgotPassword/:email',
-    async ({ params }) => {
+userRoutes.post(
+    '/forgotPassword/',
+    async ({ body }) => {
         try {
-            await resetPassword(params.email);
+
+            await resetPassword(body.email);
             return new Response('{"status":"OK"}', {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
         } catch (error) {
-            if (error instanceof HttpError) {
-                return new Response(`{message: ${error.message}}`, {
-                    status: error.statusCode,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-            throw error;
+            return handleError(error);
         }
     },
     {
-        params: t.Object({
+        body: t.Object({
             email: t.String({
                 format: 'email',
             }),
@@ -221,21 +157,28 @@ userRoutes.get(
     },
 );
 
-userRoutes.get('/checkEmail/:email', async ({ params }) => {
-    const resp = await checkEmailExist(params.email);
-    return new Response(JSON.stringify({ emailTaken: resp }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-    });
-});
+userRoutes.get('/checkEmail', async ({ query }) => {
+        const resp = await checkEmailExist(query.email);
+        return new Response(JSON.stringify({ emailTaken: resp }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    },
+    {
+        body: t.Object({
+            email: t.String({
+                format: 'email',
+            }),
+        }),
+    },
+);
 
 userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
         const id: string = await verifyUser(bearer);
         if (!id) {
             return new Response("User do not exist", { status: 401, headers: { 'Content-Type': 'application/json' } });
         }
-        var ret = await getRecommendedCollocs(bearer);
-        return new Response(JSON.stringify(ret), {status: 200, headers: { 'Content-Type': 'application/json' }});
+        return await getRecommendedCollocs(bearer);
     },
     {
         beforeHandle({ bearer, set }) {
