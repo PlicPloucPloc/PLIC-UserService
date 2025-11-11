@@ -178,8 +178,7 @@ userRoutes.use(bearer()).get('/recommendedColloc', async ({ bearer }) => {
         if (!id) {
             return new Response("User do not exist", { status: 401, headers: { 'Content-Type': 'application/json' } });
         }
-        var ret = await getRecommendedCollocs(bearer);
-        return new Response(JSON.stringify(ret), {status: 200, headers: { 'Content-Type': 'application/json' }});
+        return await getRecommendedCollocs(bearer);
     },
     {
         beforeHandle({ bearer, set }) {

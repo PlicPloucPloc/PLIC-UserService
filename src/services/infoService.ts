@@ -18,7 +18,7 @@ export async function allUsers(): Promise<Response> {
 }
 
 export async function getRecommendedCollocs(bearer: string): Promise<Response> {
-    var userIds : string[] = (await fetchRecommendedCollocs(bearer)).userIds;
+    var userIds : string[] = await fetchRecommendedCollocs(bearer);
     var users: User[] = [];
     for (const id of userIds) {
         users.push(await getUserById(id));
