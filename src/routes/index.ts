@@ -165,7 +165,7 @@ userRoutes.get('/checkEmail', async ({ query }) => {
         });
     },
     {
-        body: t.Object({
+        query: t.Object({
             email: t.String({
                 format: 'email',
             }),
