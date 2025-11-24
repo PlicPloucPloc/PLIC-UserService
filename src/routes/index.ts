@@ -158,11 +158,7 @@ userRoutes.post(
 );
 
 userRoutes.get('/checkEmail', async ({ query }) => {
-        const resp = await checkEmailExist(query.email);
-        return new Response(JSON.stringify({ emailTaken: resp }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return await checkEmailExist(query.email);
     },
     {
         query: t.Object({
