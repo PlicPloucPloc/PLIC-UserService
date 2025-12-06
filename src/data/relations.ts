@@ -21,7 +21,7 @@ export async function createUserNode(bearer: string): Promise<void> {
     }
 }
 
-export async function fetchRecommendedCollocs(bearer: string): Promise<{userIds: string[]}> {
+export async function fetchRecommendedCollocs(bearer: string): Promise<string[]> {
     const userUrl = (process.env.LIKE_URL || 'http://localhost:3000') + '/recommendedColloc';
     const request = new Request(userUrl, {
         method: 'get',
